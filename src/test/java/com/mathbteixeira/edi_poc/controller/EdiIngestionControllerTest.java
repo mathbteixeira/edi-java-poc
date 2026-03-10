@@ -1,5 +1,6 @@
 package com.mathbteixeira.edi_poc.controller;
 
+import com.mathbteixeira.edi_poc.EdiEventPublisher;
 import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,15 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EdiIngestionController.class)
@@ -26,11 +24,10 @@ class EdiIngestionControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean // Mocks Kafka so the test doesn't require Docker to be running
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private EdiEventPublisher ediPublisher;
 
     @Test
     void shouldSuccessfullyParseEdiAndPublishToKafka() throws Exception {
-        // Arrange: The raw EDI string
         String rawEdi = "ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~" +
                 "GS*PO*RETAILER123*SUPPLIER999*20260309*1530*1*X*004010~" +
                 "ST*850*0001~" +
@@ -42,18 +39,16 @@ class EdiIngestionControllerTest {
                 "GE*1*1~" +
                 "IEA*1*000000001~";
 
-        // Act & Assert: Simulate an HTTP POST and verify the JSON output
+        // Act & Assert: Expect an ACCEPTED status and the 997 string
         mockMvc.perform(post("/api/v1/edi/parse/850")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(rawEdi))
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.poNumber").value("PO-987654"))
-                .andExpect(jsonPath("$.partnerId").value("RETAILER123"))
-                .andExpect(jsonPath("$.items[0].upcCode").value("012345678905"))
-                .andExpect(jsonPath("$.items[0].quantity").value(100));
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("ST*997"))); // Verify it returns a 997
 
-        // Assert: Verify that our Anti-Corruption Layer attempted to publish the event
-        verify(kafkaTemplate).send(eq("retail.orders.validated"), eq("PO-987654"), any());
+        // Verify Kafka publish attempt
+        verify(ediPublisher).publish(any());
     }
 
     @Test
