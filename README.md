@@ -81,18 +81,21 @@ flowchart LR
 This project is fully containerized. You do not need Kafka or Java installed locally to run the full stack, just Docker.
 
 **1. Start the Infrastructure**
+
 This command builds the Spring Boot application via a multi-stage Dockerfile and spins it up alongside a standalone Kafka broker on the same network.
 ```bash
 docker-compose up --build -d
 ```
 
 **2. Follow the Application Logs**
+
 To watch the pipeline process in real-time, attach to the Spring Boot container logs:
 ```bash
 docker logs -f edi-spring-api
 ```
 
 **3. Fire the Test Payload**
+
 Open a new terminal window and send a raw X12 850 document to the ingestion endpoint:
 ```bash
 curl -X POST http://localhost:8080/api/v1/edi/parse/850 \
@@ -100,8 +103,30 @@ curl -X POST http://localhost:8080/api/v1/edi/parse/850 \
      -d 'ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~GS*PO*RETAILER123*SUPPLIER999*20260309*1530*1*X*004010~ST*850*0001~BEG*00*SA*PO-987654**20260309~PO1*1*100*EA*12.50**UP*012345678905~PO1*2*50*EA*8.75**UP*098765432109~CTT*2~SE*7*0001~GE*1*1~IEA*1*000000001~' 
 ```
 
-**4. View the Result**
-In your container logs, you will instantly see the Anti-Corruption layer successfully parse the text, publish it to Kafka, and the downstream consumer independently read the clean JSON event.
+**4. Fire the Test Payload (Via File Drop)**
+
+To test the asynchronous Apache Camel integration, you can drop an EDI file directly into the local ingestion folder.
+
+First, ensure the input directory exists (the application creates it automatically on startup, but you can create it manually):
+```bash
+mkdir -p edi-inbound
+```
+
+Next, create a sample EDI text file and move it into the folder:
+```bash
+echo 'ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~GS*PO*RETAILER123*SUPPLIER999*20260309*1530*1*X*004010~ST*850*0001~BEG*00*SA*PO-987654**20260309~PO1*1*100*EA*12.50**UP*012345678905~PO1*2*50*EA*8.75**UP*098765432109~CTT*2~SE*7*0001~GE*1*1~IEA*1*000000001~' > edi-inbound/test_order.txt
+```
+
+**5. View the Result**
+
+In your container logs (docker logs -f edi-spring-api), you will immediately see Camel detect the file, parse the payload, and publish the event to Kafka.
+
+Check your local directory to verify the Anti-Corruption Layer successfully archived the legacy file:
+```bash
+ls -l edi-inbound/.done/
+```
+
+*(Note: Just double-check your `docker-compose.yml` to ensure that the `./edi-inbound` folder on your local machine is mounted as a volume to the Spring Boot container. If it isn't mounted, Camel inside the container won't see the file you drop on your host machine!)*
 
 ### Automated Testing
 The repository includes a robust suite of automated tests:
