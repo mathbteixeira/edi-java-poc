@@ -1,5 +1,6 @@
 package com.mathbteixeira.edi_poc.controller;
 
+import com.mathbteixeira.edi_poc.Edi997Generator;
 import com.mathbteixeira.edi_poc.EdiEventPublisher;
 import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EdiIngestionController.class)
-@Import(EdiPurchaseOrderParser.class) // Tells Spring to use your REAL parser logic
+@Import({EdiPurchaseOrderParser.class, Edi997Generator.class})
 class EdiIngestionControllerTest {
 
     @Autowired

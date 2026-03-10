@@ -33,15 +33,21 @@ class EdiPurchaseOrderParserTest {
 
     @Test
     void shouldThrowExceptionWhenBegSegmentIsMissing() {
-        // Arrange - An EDI string with no BEG segment
-        String invalidEdi = "ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~" +
-                "PO1*1*100*EA*12.50**UP*012345678905~";
+        // Arrange: A payload perfectly formatted, but completely missing the BEG segment
+        String malformedEdi = "ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~" +
+                "GS*PO*RETAILER123*SUPPLIER999*20260309*1530*1*X*004010~" +
+                "ST*850*0001~" +
+                "PO1*1*100*EA*12.50**UP*012345678905~" +
+                "SE*6*0001~" +
+                "GE*1*1~" +
+                "IEA*1*000000001~";
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            parser.parseX12Order(invalidEdi);
+            parser.parseX12Order(malformedEdi);
         });
 
+        // Verify the exception message is helpful for logging
         assertTrue(exception.getMessage().contains("Missing BEG segment"));
     }
 }
