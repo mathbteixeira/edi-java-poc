@@ -8,15 +8,18 @@ This project is an enterprise-grade proof-of-concept demonstrating how to integr
 It acts as an **Anti-Corruption Layer (ACL)**, ingesting archaic, position-based X12 payloads (specifically the 850 Purchase Order), parsing the segments without relying on heavy third-party XML converters, and publishing strictly typed, normalized JSON events to a message broker for downstream domain consumption.
 
 ### Architecture & Data Flow
-1. **API Ingestion:** A Spring Boot REST Controller simulates an API Gateway receiving a raw EDI text payload over HTTP.
+1. **Multi-Protocol Ingestion:** - **REST API:** A Spring Boot controller simulates an API Gateway receiving raw EDI text payloads over synchronous HTTP.
+    - **Asynchronous File Drop:** An Apache Camel route watches a local directory (`/edi-inbound`) for legacy batch file drops, sanitizes the payloads, and archives processed files to a `.done` folder.
 2. **Translation Layer:** A custom, stream-based parser efficiently processes the EDI string by handling standard segment (`~`) and element (`*`) delimiters.
-3. **Domain Normalization:** Raw X12 data is mapped into a pristine, strongly-typed Java Record (`RetailOrderDomain`).
-4. **Event Publishing:** The application serializes the clean domain model to JSON and publishes it to an Apache Kafka topic (`retail.orders.validated`).
-5. **Event Consumption:** A downstream `@KafkaListener` independently consumes the validated event, simulating a decoupled Fulfillment or Inventory microservice.
+3. **B2B Acknowledgment:** The system automatically generates and returns a raw **X12 997 Functional Acknowledgment** to the trading partner to confirm syntax acceptance.
+4. **Domain Normalization:** Raw X12 data is mapped into a pristine, strongly-typed Java Record (`RetailOrderDomain`).
+5. **Event Publishing:** The application serializes the clean domain model to JSON and securely publishes it to an Apache Kafka topic using a designated partition key.
+6. **Event Consumption:** A downstream `@KafkaListener` independently consumes the validated event, simulating a decoupled microservice.
 
 ### Tech Stack
 * **Language:** Java 17
 * **Framework:** Spring Boot (Web, Kafka, Test)
+* **Integration:** Apache Camel
 * **Message Broker:** Apache Kafka (KRaft mode)
 * **Containerization:** Docker & Docker Compose (Multi-stage build)
 * **CI/CD:** GitHub Actions
@@ -51,7 +54,11 @@ curl -X POST http://localhost:8080/api/v1/edi/parse/850 \
 In your container logs, you will instantly see the Anti-Corruption layer successfully parse the text, publish it to Kafka, and the downstream consumer independently read the clean JSON event.
 
 ### Automated Testing
-The repository includes automated integration tests utilizing @WebMvcTest and @MockitoBean to test the HTTP layer and parsing logic while safely mocking the Kafka dependencies.
+The repository includes a robust suite of automated tests:
+* **Web Layer:** `@WebMvcTest` verifies the HTTP ingestion and 997 Acknowledgment generation.
+* **Integration Routing:** `CamelTestSupport` combined with `NotifyBuilder` tests the asynchronous file ingestion and archiving mechanisms in isolation.
+* **Domain Logic:** Strict JUnit 5 tests validate the EDI parser's edge cases and X12 padding rules.
+* **Mocking:** `@MockitoBean` safely mocks the Kafka infrastructure to ensure builds run smoothly in CI/CD environments without requiring a live broker.
 
 These tests run automatically on every push to the main branch via GitHub Actions.
 
