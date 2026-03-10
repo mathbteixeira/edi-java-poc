@@ -16,6 +16,56 @@ It acts as an **Anti-Corruption Layer (ACL)**, ingesting archaic, position-based
 5. **Event Publishing:** The application serializes the clean domain model to JSON and securely publishes it to an Apache Kafka topic using a designated partition key.
 6. **Event Consumption:** A downstream `@KafkaListener` independently consumes the validated event, simulating a decoupled microservice.
 
+```mermaid
+flowchart LR
+    subgraph External
+        TP(Trading Partner)
+    end
+
+    subgraph Spring Boot Anti-Corruption Layer
+        API[REST Controller]
+        Camel[Apache Camel Route]
+        Parser{EDI X12 Parser}
+        Ack[997 Ack Generator]
+    end
+
+    subgraph Event Broker
+        Kafka[(Apache Kafka)]
+        Topic([retail.orders.validated])
+    end
+
+    subgraph Downstream
+        Fulfillment[Fulfillment Service]
+    end
+
+    %% Ingestion Paths
+    TP -- "HTTP POST (850 Order)" --> API
+    TP -- "File Drop (Batch Order)" --> Camel
+    
+    %% Processing
+    API --> Parser
+    Camel --> Parser
+    
+    %% B2B Acknowledgment
+    Parser -. "Triggers" .-> Ack
+    Ack -- "Returns Sync 997" --> TP
+    
+    %% Event Publishing
+    Parser -- "Publishes Clean JSON" --> Kafka
+    Kafka --- Topic
+    
+    %% Consumption
+    Topic -- "Consumes Event" --> Fulfillment
+
+    classDef external fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef internal fill:#e1f5fe,stroke:#039be5,stroke-width:2px;
+    classDef broker fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
+    
+    class TP external;
+    class API,Camel,Parser,Ack internal;
+    class Kafka,Topic broker;
+```
+
 ### Tech Stack
 * **Language:** Java 17
 * **Framework:** Spring Boot (Web, Kafka, Test)
