@@ -30,6 +30,6 @@ jobs:
       - name: Run Tests
         run: mvn clean test
 
-      # Step 4: Verify the application can package successfully into a JAR
+      # Step 4: Verify the application can package successfully into a JAR file
       - name: Build Project
         run: mvn clean package -DskipTests

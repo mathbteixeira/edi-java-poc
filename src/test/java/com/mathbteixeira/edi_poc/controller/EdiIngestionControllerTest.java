@@ -55,4 +55,17 @@ class EdiIngestionControllerTest {
         // Assert: Verify that our Anti-Corruption Layer attempted to publish the event
         verify(kafkaTemplate).send(eq("retail.orders.validated"), eq("PO-987654"), any());
     }
+
+    @Test
+    void shouldReturnBadRequestWhenEdiIsInvalid() throws Exception {
+        // Arrange: Raw EDI missing the BEG segment
+        String invalidEdi = "ISA*00* *00* *ZZ*RETAILER123    *ZZ*SUPPLIER999    *260309*1530*U*00401*000000001*0*P*>~" +
+                "PO1*1*100*EA*12.50**UP*012345678905~";
+
+        // Act & Assert: Expect a 400 Bad Request
+        mockMvc.perform(post("/api/v1/edi/parse/850")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(invalidEdi))
+                .andExpect(status().isBadRequest());
+    }
 }
