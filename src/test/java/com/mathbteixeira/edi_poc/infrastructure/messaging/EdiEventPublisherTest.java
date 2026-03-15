@@ -1,15 +1,12 @@
-package com.mathbteixeira.edi_poc;
+package com.mathbteixeira.edi_poc.infrastructure.messaging;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;

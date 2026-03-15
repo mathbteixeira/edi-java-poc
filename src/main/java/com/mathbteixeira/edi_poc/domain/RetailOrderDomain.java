@@ -1,4 +1,4 @@
-package com.mathbteixeira.edi_poc.model;
+package com.mathbteixeira.edi_poc.domain;
 
 import java.util.List;
 

@@ -1,10 +1,12 @@
-package com.mathbteixeira.edi_poc;
+package com.mathbteixeira.edi_poc.application;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
-import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EdiPurchaseOrderParserTest {
 

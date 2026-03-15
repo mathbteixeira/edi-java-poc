@@ -1,15 +1,18 @@
-package com.mathbteixeira.edi_poc.controller;
+package com.mathbteixeira.edi_poc.api;
 
-import com.mathbteixeira.edi_poc.Edi997Generator;
-import com.mathbteixeira.edi_poc.EdiEventPublisher;
-import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.application.Edi997Generator;
+import com.mathbteixeira.edi_poc.application.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.infrastructure.messaging.EdiEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/edi")

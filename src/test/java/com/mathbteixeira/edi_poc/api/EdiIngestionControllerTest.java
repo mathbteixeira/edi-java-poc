@@ -1,8 +1,8 @@
-package com.mathbteixeira.edi_poc.controller;
+package com.mathbteixeira.edi_poc.api;
 
-import com.mathbteixeira.edi_poc.Edi997Generator;
-import com.mathbteixeira.edi_poc.EdiEventPublisher;
-import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.application.Edi997Generator;
+import com.mathbteixeira.edi_poc.application.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.infrastructure.messaging.EdiEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

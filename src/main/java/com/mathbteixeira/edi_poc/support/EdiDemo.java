@@ -1,7 +1,7 @@
-package com.mathbteixeira.edi_poc;
+package com.mathbteixeira.edi_poc.support;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
-import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.application.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
 
 public class EdiDemo {
     public static void main(String[] args) {

@@ -1,6 +1,6 @@
-package com.mathbteixeira.edi_poc;
+package com.mathbteixeira.edi_poc.infrastructure.messaging;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

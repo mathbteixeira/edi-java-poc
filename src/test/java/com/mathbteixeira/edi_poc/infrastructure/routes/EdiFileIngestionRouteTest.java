@@ -1,8 +1,8 @@
-package com.mathbteixeira.edi_poc;
+package com.mathbteixeira.edi_poc.infrastructure.routes;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
-import com.mathbteixeira.edi_poc.route.EdiFileIngestionRoute;
-import com.mathbteixeira.edi_poc.service.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.application.EdiPurchaseOrderParser;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.infrastructure.messaging.EdiEventPublisher;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit5.CamelTestSupport;

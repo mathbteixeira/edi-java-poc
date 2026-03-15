@@ -1,6 +1,6 @@
-package com.mathbteixeira.edi_poc.service;
+package com.mathbteixeira.edi_poc.application;
 
-import com.mathbteixeira.edi_poc.model.RetailOrderDomain;
+import com.mathbteixeira.edi_poc.domain.RetailOrderDomain;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
